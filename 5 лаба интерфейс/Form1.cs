@@ -31,6 +31,10 @@ namespace _5_лаба_интерфейс
             postbutton.Visible = true;
             getbutton.Visible = false;
             openfile.Visible = false;
+            portbox.Visible = true;
+            ipadresbox.Visible = false;
+            label1.Visible = true;
+            label2.Visible = false;
         }
 
         private void ClientBox_CheckedChanged(object sender, EventArgs e)
@@ -40,24 +44,40 @@ namespace _5_лаба_интерфейс
             getbutton.Visible = true;
             postbutton.Visible = false;
             openfile.Visible = true;
+            portbox.Visible = true;
+            ipadresbox.Visible = true;
+            label1.Visible = true;
+            label2.Visible = true;
         }
 
         private void postbutton_Click(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
-                return;
+            try
+            {
+                if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
+                    return;
 
-            string filePath = openFileDialog1.FileName;  // Укажите путь к вашему HTML-файлу
-            Thread threadserver = new Thread(createServer);
-            threadserver.Start(filePath);
-          //  threadserver.Abort();
+                string filePath = openFileDialog1.FileName;  // Укажите путь к вашему HTML-файлу
+                Thread threadserver = new Thread(createServer);
+                threadserver.Start(filePath);
+                //  threadserver.Abort();
+            }
+            catch (Exception exp)
+            {
+                MessageBox.Show("Error :" + exp.Message);
+            }
         }
 
         private void createServer(object filePath)
         {
-
-            var server = new Server((string)filePath);
-            server.Start();
+            try
+            {
+                var server = new Server((string)filePath, int.Parse(portbox.Text));
+                server.Start();
+            } catch(Exception exp)
+            {
+                MessageBox.Show("Error :" + exp.Message);
+            }
         }
 
         private void getbutton_Click(object sender, EventArgs e)
@@ -87,8 +107,15 @@ namespace _5_лаба_интерфейс
 
         private void createClient(object savePath)
         {
-            var client = new Client((string)savePath);
-            client.Start();
+            try
+            {
+                var client = new Client((string)savePath, ipadresbox.Text, int.Parse(portbox.Text));
+                client.Start();
+            }
+            catch (Exception exp)
+            {
+                MessageBox.Show("Error :" + exp.Message);
+            }
         }
 
         private void openfile_Click(object sender, EventArgs e)

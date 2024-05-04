@@ -11,16 +11,18 @@ namespace _5_лаба_интерфейс
 {
     class Client
     {
-        private const string ServerIpAddress = "127.0.0.1"; // Укажите IP-адрес сервера
-        private const int ServerPort = 8080; // Укажите порт сервера
+        private string ServerIpAddress ; // Укажите IP-адрес сервера
+        private int ServerPort ; // Укажите порт сервера
 
         private readonly string _savePath;
 
         TcpClient client = null;
 
-        public Client(string savePath)
+        public Client(string savePath, string ip, int port)
         {
             _savePath = savePath;
+            ServerPort = port;
+            ServerIpAddress = ip;
         }
 
         public void Start()

@@ -12,13 +12,14 @@ namespace _5_лаба_интерфейс
 {
     class Server
     {
-        private const int Port = 8080; // Укажите порт, на котором будет работать сервер
+        private int Port ; // Укажите порт, на котором будет работать сервер
 
         private readonly string _filePath;
 
-        public Server(string filePath)
+        public Server(string filePath, int port)
         {
             _filePath = filePath;
+            this.Port = port;
         }
 
         public void Start()
