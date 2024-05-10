@@ -111,6 +111,7 @@ namespace _5_лаба_интерфейс
                     string file = listFileBox.SelectedItem.ToString();
                     //  client.downloadFile(file,savePath);
                     _ = client.DownloadFileAsync(file);
+                    //client.StartDownloadAsync();
                 } else
                 {
                     MessageBox.Show("Ошибка при введении имени файла");

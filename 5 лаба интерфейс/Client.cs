@@ -32,7 +32,7 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                TcpClient client = new TcpClient();
+                client = new TcpClient();
                 await client.ConnectAsync(ServerIpAddress, ServerPort);
                 MessageBox.Show("Успешное подключение к серверу.");
 
@@ -51,8 +51,8 @@ namespace _5_лаба_интерфейс
                         fileList.Add(line);
                     }
 
-                    client.Close();
-                    MessageBox.Show("Завершение соединения.");
+                  //  client.Close();
+                  //  MessageBox.Show("Завершение соединения.");
 
                     return fileList;
                 }
@@ -112,7 +112,7 @@ namespace _5_лаба_интерфейс
             }
             catch (Exception e)
             {
-                MessageBox.Show("Ошибка при работе клиента: " + e.Message);
+                MessageBox.Show("Ошибка при работе клиента(скачивание): " + e.Message);
             }
         }
 
@@ -142,36 +142,74 @@ namespace _5_лаба_интерфейс
             }
         }
 
-        public void downloadFile(string fileName, string savePath)
+        public async Task StartDownloadAsync(string fileName)
         {
-           // TcpClient client = null;
-
             try
             {
-                client = new TcpClient(ServerIpAddress, ServerPort);
+                TcpClient client = new TcpClient();
+                await client.ConnectAsync(ServerIpAddress, ServerPort);
+                MessageBox.Show("Успешное подключение к серверу.");
+
+                using (StreamReader reader = new StreamReader(client.GetStream()))
                 using (StreamWriter writer = new StreamWriter(client.GetStream()))
                 {
-                    writer.WriteLine(fileName);
-                    writer.Flush();
+                    // Отправляем пустую строку в качестве запроса на получение списка файлов
+                    await writer.WriteLineAsync();
+                    await writer.FlushAsync();
+
+                    // Читаем список файлов от сервера
+                    List<string> fileList = new List<string>();
+                    string line;
+                    while ((line = await reader.ReadLineAsync()) != string.Empty)
+                    {
+                        fileList.Add(line);
+                    }
+
+                    // Проверяем, есть ли запрошенный файл в списке файлов
+                    if (fileList.Contains(fileName))
+                    {
+                        // Отправляем запрос на сервер с именем файла
+                        await writer.WriteLineAsync(fileName);
+                        await writer.FlushAsync();
+
+                        // Читаем ответ от сервера
+                        string response = await reader.ReadLineAsync();
+                        if (!string.IsNullOrEmpty(response))
+                        {
+                            // Получаем имя файла из ответа сервера
+                            string receivedFileName = Path.GetFileName(response);
+
+                            // Создаем диалоговое окно для сохранения файла
+                            SaveFileDialog saveFileDialog = new SaveFileDialog();
+                            saveFileDialog.FileName = receivedFileName;
+                            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                            {
+                                // Создаем файл на клиенте и записываем в него данные от сервера
+                                using (FileStream fileStream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                                {
+                                    await client.GetStream().CopyToAsync(fileStream);
+                                }
+
+                                MessageBox.Show($"Файл '{receivedFileName}' успешно скачан и сохранен.");
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Файл '{fileName}' не найден на сервере.");
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Список файлов не содержит запрошенного файла.");
+                    }
                 }
 
-                string saveFilePath = Path.Combine(savePath, fileName);
-
-                using (FileStream fileStream = new FileStream(saveFilePath, FileMode.Create))
-                {
-                    client.GetStream().CopyTo(fileStream);
-                }
-
-                MessageBox.Show($"Файл '{fileName}' успешно скачан и сохранен по пути: {saveFilePath}");
+                client.Close();
+                MessageBox.Show("Завершение соединения.");
             }
             catch (Exception e)
             {
-                MessageBox.Show("Ошибка при загрузке файла: " + e.Message);
-            }
-            finally
-            {
-              //  if (client != null)
-                   // client.Close();
+                MessageBox.Show("Ошибка при работе клиента: " + e.Message);
             }
         }
 
