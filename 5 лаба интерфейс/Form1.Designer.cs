@@ -40,6 +40,10 @@ namespace _5_лаба_интерфейс
             this.ipadresbox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.listFileBox = new System.Windows.Forms.ComboBox();
+            this.addfile = new System.Windows.Forms.Button();
+            this.connectButton = new System.Windows.Forms.Button();
+            this.closeButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // ServerBox
@@ -139,11 +143,54 @@ namespace _5_лаба_интерфейс
             this.label2.Text = "IP adress";
             this.label2.Visible = false;
             // 
+            // listFileBox
+            // 
+            this.listFileBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.listFileBox.FormattingEnabled = true;
+            this.listFileBox.Location = new System.Drawing.Point(12, 53);
+            this.listFileBox.Name = "listFileBox";
+            this.listFileBox.Size = new System.Drawing.Size(148, 28);
+            this.listFileBox.TabIndex = 9;
+            // 
+            // addfile
+            // 
+            this.addfile.Location = new System.Drawing.Point(12, 112);
+            this.addfile.Name = "addfile";
+            this.addfile.Size = new System.Drawing.Size(75, 23);
+            this.addfile.TabIndex = 10;
+            this.addfile.Text = "Add file";
+            this.addfile.UseVisualStyleBackColor = true;
+            this.addfile.Click += new System.EventHandler(this.addfile_Click);
+            // 
+            // connectButton
+            // 
+            this.connectButton.Location = new System.Drawing.Point(308, 141);
+            this.connectButton.Name = "connectButton";
+            this.connectButton.Size = new System.Drawing.Size(75, 23);
+            this.connectButton.TabIndex = 11;
+            this.connectButton.Text = "Connect";
+            this.connectButton.UseVisualStyleBackColor = true;
+            this.connectButton.Click += new System.EventHandler(this.connectButton_Click);
+            // 
+            // closeButton
+            // 
+            this.closeButton.Location = new System.Drawing.Point(382, 13);
+            this.closeButton.Name = "closeButton";
+            this.closeButton.Size = new System.Drawing.Size(113, 23);
+            this.closeButton.TabIndex = 12;
+            this.closeButton.Text = "Close connect";
+            this.closeButton.UseVisualStyleBackColor = true;
+            this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(519, 205);
+            this.ClientSize = new System.Drawing.Size(519, 206);
+            this.Controls.Add(this.closeButton);
+            this.Controls.Add(this.connectButton);
+            this.Controls.Add(this.addfile);
+            this.Controls.Add(this.listFileBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ipadresbox);
@@ -174,6 +221,10 @@ namespace _5_лаба_интерфейс
         private System.Windows.Forms.TextBox ipadresbox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox listFileBox;
+        private System.Windows.Forms.Button addfile;
+        private System.Windows.Forms.Button connectButton;
+        private System.Windows.Forms.Button closeButton;
     }
 }
 

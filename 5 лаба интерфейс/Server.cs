@@ -14,61 +14,120 @@ namespace _5_лаба_интерфейс
     {
         private int Port ; // Укажите порт, на котором будет работать сервер
 
-        private readonly string _filePath;
+        private readonly List<string> FilePaths;
 
-        public Server(string filePath, int port)
+       // private bool running = true;
+
+        TcpListener listener = null;
+        TcpClient client = null;
+
+        public Server(List<string> filePath, int port)
         {
-            _filePath = filePath;
+            FilePaths = filePath;
             this.Port = port;
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
             TcpListener listener = null;
-            TcpClient client = null;
 
             try
             {
                 listener = new TcpListener(IPAddress.Any, Port);
                 listener.Start();
-              //  DialogResult res = MessageBox.Show("Сервер запущен. Ожидание подключения клиента...", "Подтверждение удаления", 
-              //      MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                while (!listener.Pending())
-                {
-                    //  MessageBox.Show("Сервер запущен. Ожидание подключения клиента...");
-                    DialogResult res = MessageBox.Show("Сервер запущен. Ожидание подключения клиента...", "Ожидание подключения",
-                      MessageBoxButtons.RetryCancel, MessageBoxIcon.Information);
-                    if (res == DialogResult.Cancel)
-                    {
-                        return;
-                    }
-                }
-                
-                client = listener.AcceptTcpClient();
+
+                MessageBox.Show("Сервер запущен. Ожидание подключения клиента...");
+
+                TcpClient client = await listener.AcceptTcpClientAsync();
                 MessageBox.Show("Клиент подключен.");
 
-                using (var fileStream = new FileStream(_filePath, FileMode.Open))
+                using (StreamReader reader = new StreamReader(client.GetStream()))
+                using (StreamWriter writer = new StreamWriter(client.GetStream()))
                 {
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-
-                    while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0)
+                    // Отправляем список файлов клиенту
+                    foreach (string filePath1 in FilePaths)
                     {
-                        client.GetStream().Write(buffer, 0, bytesRead);
+                        writer.WriteLine(Path.GetFileName(filePath1));
+                    }
+                    writer.WriteLine(); // Пустая строка для обозначения окончания списка файлов
+                    await writer.FlushAsync();
+
+                    // Читаем запрос клиента
+                    string requestedFile = await reader.ReadLineAsync();
+
+                    string filePath = FilePaths.Find(path => Path.GetFileName(path) == requestedFile);
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+                        {
+                            await fileStream.CopyToAsync(client.GetStream());
+                        }
+                        MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Файл '{requestedFile}' не найден на сервере.");
                     }
                 }
 
-                Console.WriteLine("Файл отправлен клиенту");
-                MessageBox.Show("Файл успешно отправлен клиенту");
+                MessageBox.Show("Завершение соединения.");
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                MessageBox.Show("Ошибка при передаче файла: " + ex.Message);
+                MessageBox.Show("Ошибка при работе сервера: " + e.Message);
             }
             finally
             {
-                client?.Close();
-                listener?.Stop();
+                if (listener != null)
+                    listener.Stop();
+            }
+        }
+
+        public async Task DownloadAsync()
+        {
+            TcpListener listener = null;
+
+            try
+            {
+                listener = new TcpListener(IPAddress.Any, Port);
+                listener.Start();
+
+                MessageBox.Show("Сервер запущен. Ожидание подключения клиента...");
+
+                TcpClient client = await listener.AcceptTcpClientAsync();
+                MessageBox.Show("Клиент подключен.");
+
+                using (StreamReader reader = new StreamReader(client.GetStream()))
+                using (StreamWriter writer = new StreamWriter(client.GetStream()))
+                {
+                    // Читаем запрос клиента
+                    string requestedFile = await reader.ReadLineAsync();
+
+                    string filePath = FilePaths.Find(path => Path.GetFileName(path) == requestedFile);
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+                        {
+                            await fileStream.CopyToAsync(client.GetStream());
+                        }
+                        MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Файл '{requestedFile}' не найден на сервере.");
+                    }
+                }
+
+                MessageBox.Show("Завершение соединения.");
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Ошибка при работе сервера: " + e.Message);
+            }
+            finally
+            {
+                if (listener != null)
+                    listener.Stop();
             }
         }
     }

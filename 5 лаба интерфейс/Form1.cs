@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,9 +18,17 @@ namespace _5_лаба_интерфейс
 
         string savePath;
 
+        Client client;
+        Server server;
+
+        List<string> ListFile = new List<string> { };
+
         public Form1()
         {
             InitializeComponent();
+            listFileBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            portbox.Text = "8081";
+            ipadresbox.Text = "127.0.0.1";
             saveFileDialog1.Filter = "HTML файл (*.html)|*.html|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
             openFileDialog1.Filter = "HTML файл (*.html)|*.html|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
         }
@@ -54,12 +63,15 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
-                    return;
+                //   if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
+                //     return;
 
-                string filePath = openFileDialog1.FileName;  // Укажите путь к вашему HTML-файлу
-                Thread threadserver = new Thread(createServer);
-                threadserver.Start(filePath);
+                //   string filePath = openFileDialog1.FileName;  // Укажите путь к вашему HTML-файлу
+                // Thread threadserver = new Thread(createServer);
+                // threadserver.Start(ListFile);
+                server = new Server((List<string>)ListFile, int.Parse(portbox.Text));
+                _ = server.StartAsync();
+            //    _ = server.DownloadAsync();
                 //  threadserver.Abort();
             }
             catch (Exception exp)
@@ -72,8 +84,8 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                var server = new Server((string)filePath, int.Parse(portbox.Text));
-                server.Start();
+                server = new Server((List<string>)filePath, int.Parse(portbox.Text));
+                server.StartAsync();
             } catch(Exception exp)
             {
                 MessageBox.Show("Error :" + exp.Message);
@@ -85,14 +97,20 @@ namespace _5_лаба_интерфейс
             try
             {
                 //saveFileDialog1.ShowDialog();
+
                 if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
                     return;
                 savePath = saveFileDialog1.FileName;
                 // string savePath = @"C:\test.html";
-                if (savePath.Length != 0)
+                if (client != null)
                 {
-                    Thread threadclient = new Thread(createClient);
-                    threadclient.Start(savePath);
+                    //  Thread threadclient = new Thread(createClient);
+                    //  threadclient.Start(savePath);
+                    //createClient(savePath);
+                    //server.
+                    string file = listFileBox.SelectedItem.ToString();
+                    //  client.downloadFile(file,savePath);
+                    _ = client.DownloadFileAsync(file);
                 } else
                 {
                     MessageBox.Show("Ошибка при введении имени файла");
@@ -105,12 +123,16 @@ namespace _5_лаба_интерфейс
             }
         }
 
-        private void createClient(object savePath)
+        private async Task createClientAsync(object savePath)
         {
             try
             {
-                var client = new Client((string)savePath, ipadresbox.Text, int.Parse(portbox.Text));
-                client.Start();
+                client = new Client( ipadresbox.Text, int.Parse(portbox.Text));
+               // client.Start();
+           //    client.RequestFileAsync(
+                ListFile = await client.GetFileListAsync();
+                listFileBox.Items.Clear();
+                listFileBox.Items.AddRange(ListFile.ToArray());
             }
             catch (Exception exp)
             {
@@ -122,6 +144,11 @@ namespace _5_лаба_интерфейс
         {
             try
             {
+                if (savePath == null)
+                {
+                    MessageBox.Show("Файл ///");
+                    return;
+                }
                 if (savePath.Length != 0)
                 {
                     string filename = $"\"{savePath}\"";
@@ -131,10 +158,61 @@ namespace _5_лаба_интерфейс
                     MessageBox.Show("Файл не был получен");
                 }
             }
+            catch(NullReferenceException nex)
+            {
+                MessageBox.Show("Ошибка при чтении файла: " + nex.Message);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка при чтении файла: " + ex.Message);
             }
+        }
+
+        private void addfile_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
+                return;
+            ListFile.Add(openFileDialog1.FileName);
+            listFileBox.Items.Add(Path.GetFileNameWithoutExtension(openFileDialog1.FileName));
+        }
+
+        private void connectButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //saveFileDialog1.ShowDialog();
+                // if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
+                //    return;
+                //   savePath = saveFileDialog1.FileName;
+                // string savePath = @"C:\test.html";
+
+                //  Thread threadclient = new Thread(createClient);
+                //  threadclient.Start(savePath);
+                _ = createClientAsync(savePath);
+                
+               
+                  //  MessageBox.Show("Ошибка при введении имени файла");
+                
+                //  threadclient.Abort();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при записи файла: " + ex.Message);
+            }
+        }
+
+        private void closeButton_Click(object sender, EventArgs e)
+        {
+            if (ServerBox.Checked == true)
+            {
+             //   server.CloseConnect();
+                server = null;
+            } else
+            {
+                client.CloseConnect();
+                client = null;
+            }
+            MessageBox.Show("Соединение завершено");
         }
     }
 }
