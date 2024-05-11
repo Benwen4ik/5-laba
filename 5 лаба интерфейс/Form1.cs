@@ -22,6 +22,7 @@ namespace _5_лаба_интерфейс
         Server server;
 
         List<string> ListFile = new List<string> { };
+        Dictionary<int, string> DownloadListFile = new Dictionary<int, string> { };
 
         public Form1()
         {
@@ -98,19 +99,20 @@ namespace _5_лаба_интерфейс
             {
                 //saveFileDialog1.ShowDialog();
 
-                if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
-                    return;
-                savePath = saveFileDialog1.FileName;
-                // string savePath = @"C:\test.html";
+                       // string savePath = @"C:\test.html";
                 if (client != null)
                 {
+                    if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
+                        return;
+                    savePath = saveFileDialog1.FileName;
+                    DownloadListFile.Add(listFileBox.SelectedIndex,savePath);
                     //  Thread threadclient = new Thread(createClient);
                     //  threadclient.Start(savePath);
                     //createClient(savePath);
                     //server.
                     string file = listFileBox.SelectedItem.ToString();
                     //  client.downloadFile(file,savePath);
-                    _ = client.DownloadFileAsync(file);
+                    _ = client.DownloadFileAsync(file, savePath);
                     //client.StartDownloadAsync();
                 } else
                 {
@@ -120,7 +122,8 @@ namespace _5_лаба_интерфейс
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при записи файла: " + ex.Message);
+                // Используем Invoke для вызова MessageBox.Show в главном потоке
+                Invoke(new Action(() => MessageBox.Show("Ошибка при записи файла: " + ex.Message)));
             }
         }
 
@@ -145,19 +148,7 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                if (savePath == null)
-                {
-                    MessageBox.Show("Файл ///");
-                    return;
-                }
-                if (savePath.Length != 0)
-                {
-                    string filename = $"\"{savePath}\"";
-                    Process.Start("msedge.exe", filename);
-                } else
-                {
-                    MessageBox.Show("Файл не был получен");
-                }
+                Process.Start("msedge.exe", DownloadListFile[listFileBox.SelectedIndex]);
             }
             catch(NullReferenceException nex)
             {
@@ -213,7 +204,29 @@ namespace _5_лаба_интерфейс
                 client.CloseConnect();
                 client = null;
             }
+            deleteAllFiles();
             MessageBox.Show("Соединение завершено");
+        }
+
+        private  void deleteAllFiles()
+        {
+            try
+            {
+                foreach (string str in DownloadListFile.Values)
+                {
+                    File.Delete(str);
+                }
+                DownloadListFile.Clear();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при удалении файла: " + ex.Message);
+            }
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            deleteAllFiles();
         }
     }
 }

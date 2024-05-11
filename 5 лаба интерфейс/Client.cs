@@ -19,7 +19,7 @@ namespace _5_лаба_интерфейс
         private List<string> fileList = new List<string>();
         private readonly string _savePath;
 
-        TcpClient client = null;
+        TcpClient client;
 
         public Client( string ip, int port)
         {
@@ -31,7 +31,7 @@ namespace _5_лаба_интерфейс
         public async  Task<List<string>> GetFileListAsync()
         {
             try
-            {
+            { 
                 client = new TcpClient();
                 await client.ConnectAsync(ServerIpAddress, ServerPort);
                 MessageBox.Show("Успешное подключение к серверу.");
@@ -64,13 +64,18 @@ namespace _5_лаба_интерфейс
             }
         }
 
-        public async Task DownloadFileAsync(string fileName)
+        public async Task DownloadFileAsync(string fileName, string directory)
         {
             try
             {
-                TcpClient client = new TcpClient();
-                await client.ConnectAsync(ServerIpAddress, ServerPort);
-               MessageBox.Show("Успешное подключение к серверу.");
+                    TcpClient client = new TcpClient();
+                    await client.ConnectAsync(ServerIpAddress, ServerPort);
+                if (!client.Connected)
+                {
+                    MessageBox.Show("Соединение с сервером не установлено.");
+                    return;
+                }
+                MessageBox.Show("Успешное подключение к серверу.");
 
                 using (StreamReader reader = new StreamReader(client.GetStream()))
                 using (StreamWriter writer = new StreamWriter(client.GetStream()))
@@ -88,18 +93,18 @@ namespace _5_лаба_интерфейс
                         string receivedFileName = Path.GetFileName(response);
 
                         // Создаем диалоговое окно для сохранения файла
-                        SaveFileDialog saveFileDialog = new SaveFileDialog();
-                        saveFileDialog.FileName = receivedFileName;
-                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                        {
+                    //    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    //    saveFileDialog.FileName = receivedFileName;
+                  //      if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                   //     {
                             // Создаем файл на клиенте и записываем в него данные от сервера
-                            using (FileStream fileStream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                            using (FileStream fileStream = new FileStream(directory, FileMode.Create))
                             {
                                 await client.GetStream().CopyToAsync(fileStream);
                             }
 
                             MessageBox.Show($"Файл '{receivedFileName}' успешно скачан и сохранен.");
-                        }
+               //         }
                     }
                     else
                     {
@@ -108,7 +113,7 @@ namespace _5_лаба_интерфейс
                 }
 
        //         client.Close();
-                MessageBox.Show("Завершение соединения.");
+         //       MessageBox.Show("Завершение соединения.");
             }
             catch (Exception e)
             {

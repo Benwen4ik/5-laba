@@ -36,21 +36,19 @@ namespace _5_лаба_интерфейс
                 listener = new TcpListener(IPAddress.Any, Port);
                 listener.Start();
 
-                Console.WriteLine("Сервер запущен. Ожидание подключения клиента...");
+                MessageBox.Show("Сервер запущен. Ожидание подключения клиента...");
 
                 while (true)
                 {
                     TcpClient client = await listener.AcceptTcpClientAsync();
-                    Console.WriteLine("Клиент подключен.");
+                    MessageBox.Show("Клиент подключен.");
 
-                    await HandleClientAsync(client);
-
-                    Console.WriteLine("Завершение соединения.");
+                    _ = HandleClientAsync(client);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Ошибка при работе сервера: " + e.Message);
+                MessageBox.Show("Ошибка при работе сервера: " + e.Message);
             }
             finally
             {
@@ -67,11 +65,11 @@ namespace _5_лаба_интерфейс
                 using (StreamWriter writer = new StreamWriter(client.GetStream()))
                 {
                     // Отправляем список файлов клиенту
-                    foreach (string filePath1 in FilePaths)
+                    foreach (string filePath in FilePaths)
                     {
-                        writer.WriteLine(Path.GetFileName(filePath1));
+                        await writer.WriteLineAsync(Path.GetFileName(filePath));
                     }
-                    writer.WriteLine(); // Пустая строка для обозначения окончания списка файлов
+                    await writer.WriteLineAsync(); // Пустая строка для обозначения окончания списка файлов
                     await writer.FlushAsync();
 
                     while (true)
@@ -88,22 +86,26 @@ namespace _5_лаба_интерфейс
                             {
                                 await fileStream.CopyToAsync(client.GetStream());
                             }
-                            Console.WriteLine($"Файл '{requestedFile}' отправлен клиенту.");
+                            MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
                         }
                         else
                         {
-                            Console.WriteLine($"Файл '{requestedFile}' не найден на сервере.");
+                            MessageBox.Show($"Файл '{requestedFile}' не найден на сервере.");
                         }
+
+                        // Очищаем буфер и отправляем сигнал клиенту, что передача файла завершена
+                        await writer.FlushAsync();
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Ошибка при обработке клиента: " + e.Message);
+                MessageBox.Show("Ошибка при обработке клиента: " + e.Message);
             }
             finally
             {
                 client.Close();
+                MessageBox.Show("Завершение соединения.");
             }
         }
     }
