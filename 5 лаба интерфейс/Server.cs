@@ -29,7 +29,7 @@ namespace _5_лаба_интерфейс
 
         public async Task StartAsync()
         {
-            TcpListener listener = null;
+            listener = null;
 
             try
             {
@@ -40,7 +40,7 @@ namespace _5_лаба_интерфейс
 
                 while (true)
                 {
-                    TcpClient client = await listener.AcceptTcpClientAsync();
+                    client = await listener.AcceptTcpClientAsync();
                     MessageBox.Show("Клиент подключен.");
 
                     _ = HandleClientAsync(client);
@@ -54,6 +54,7 @@ namespace _5_лаба_интерфейс
             {
                 if (listener != null)
                     listener.Stop();
+                MessageBox.Show("Завершение соединения.");
             }
         }
 
@@ -84,9 +85,16 @@ namespace _5_лаба_интерфейс
                         {
                             using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
                             {
-                                await fileStream.CopyToAsync(client.GetStream());
+                                byte[] buffer = new byte[4096];
+                                int bytesRead;
+
+                                while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    client.GetStream().WriteAsync(buffer, 0, bytesRead);
+                                }
                             }
                             MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
+                            return;
                         }
                         else
                         {
@@ -105,8 +113,17 @@ namespace _5_лаба_интерфейс
             finally
             {
                 client.Close();
-                MessageBox.Show("Завершение соединения.");
+         //       MessageBox.Show("Завершение соединения.");
             }
+        }
+
+        public void closeConnect()
+        {
+            if (client != null)
+                client.Close();
+            if (listener != null)
+                listener.Stop();
+         //   MessageBox.Show("Завершение соединения.");
         }
     }
 }

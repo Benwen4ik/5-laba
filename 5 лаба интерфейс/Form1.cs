@@ -45,6 +45,8 @@ namespace _5_лаба_интерфейс
             ipadresbox.Visible = false;
             label1.Visible = true;
             label2.Visible = false;
+            connectButton.Visible = false;
+            addfile.Visible = true;
         }
 
         private void ClientBox_CheckedChanged(object sender, EventArgs e)
@@ -58,12 +60,19 @@ namespace _5_лаба_интерфейс
             ipadresbox.Visible = true;
             label1.Visible = true;
             label2.Visible = true;
+            connectButton.Visible = true;
+            addfile.Visible = false;
         }
 
         private void postbutton_Click(object sender, EventArgs e)
         {
             try
             {
+                if (listFileBox.Items.Count == 0)
+                {
+                    MessageBox.Show("Не выбран ни один файл");
+                    return;
+                }
                 //   if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
                 //     return;
 
@@ -102,6 +111,11 @@ namespace _5_лаба_интерфейс
                        // string savePath = @"C:\test.html";
                 if (client != null)
                 {
+                    if (listFileBox.SelectedIndex == -1)
+                    {
+                        MessageBox.Show("Файл не выбран");
+                        return;
+                    }
                     if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
                         return;
                     savePath = saveFileDialog1.FileName;
@@ -148,7 +162,18 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                Process.Start("msedge.exe", DownloadListFile[listFileBox.SelectedIndex]);
+                if (listFileBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Файл не выбран");
+                    return;
+                }
+                if (DownloadListFile.ContainsKey(listFileBox.SelectedIndex))
+                {
+                    MessageBox.Show("Файл не скачан");
+                    return;
+                }
+                string filename = $"\"{DownloadListFile[listFileBox.SelectedIndex]}\"";
+                Process.Start("msedge.exe",filename);
             }
             catch(NullReferenceException nex)
             {
@@ -195,17 +220,26 @@ namespace _5_лаба_интерфейс
 
         private void closeButton_Click(object sender, EventArgs e)
         {
-            if (ServerBox.Checked == true)
+            try
             {
-             //   server.CloseConnect();
-                server = null;
-            } else
-            {
-                client.CloseConnect();
-                client = null;
+                if (ServerBox.Checked == true)
+                {
+                    server.closeConnect();
+                    server = null;
+                }
+                else
+                {
+                    if (client == null) return;
+                    client.CloseConnect();
+                    client = null;
+                }
+                deleteAllFiles();
+                MessageBox.Show("Соединение завершено");
             }
-            deleteAllFiles();
-            MessageBox.Show("Соединение завершено");
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при закрытии соединения: " + ex.Message);
+            }
         }
 
         private  void deleteAllFiles()
@@ -220,7 +254,7 @@ namespace _5_лаба_интерфейс
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при удалении файла: " + ex.Message);
+                MessageBox.Show("Ошибка при удалении файлов: " + ex.Message);
             }
         }
 

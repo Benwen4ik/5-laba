@@ -50,7 +50,7 @@ namespace _5_лаба_интерфейс
             // 
             this.ServerBox.AutoSize = true;
             this.ServerBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.ServerBox.Location = new System.Drawing.Point(165, 12);
+            this.ServerBox.Location = new System.Drawing.Point(219, 12);
             this.ServerBox.Name = "ServerBox";
             this.ServerBox.Size = new System.Drawing.Size(80, 24);
             this.ServerBox.TabIndex = 0;
@@ -62,7 +62,7 @@ namespace _5_лаба_интерфейс
             // 
             this.ClientBox.AutoSize = true;
             this.ClientBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.ClientBox.Location = new System.Drawing.Point(277, 12);
+            this.ClientBox.Location = new System.Drawing.Point(335, 12);
             this.ClientBox.Name = "ClientBox";
             this.ClientBox.Size = new System.Drawing.Size(74, 24);
             this.ClientBox.TabIndex = 1;
@@ -72,7 +72,7 @@ namespace _5_лаба_интерфейс
             // 
             // postbutton
             // 
-            this.postbutton.Location = new System.Drawing.Point(218, 112);
+            this.postbutton.Location = new System.Drawing.Point(219, 46);
             this.postbutton.Name = "postbutton";
             this.postbutton.Size = new System.Drawing.Size(75, 23);
             this.postbutton.TabIndex = 2;
@@ -83,7 +83,7 @@ namespace _5_лаба_интерфейс
             // 
             // getbutton
             // 
-            this.getbutton.Location = new System.Drawing.Point(218, 141);
+            this.getbutton.Location = new System.Drawing.Point(334, 75);
             this.getbutton.Name = "getbutton";
             this.getbutton.Size = new System.Drawing.Size(75, 23);
             this.getbutton.TabIndex = 3;
@@ -98,7 +98,7 @@ namespace _5_лаба_интерфейс
             // 
             // openfile
             // 
-            this.openfile.Location = new System.Drawing.Point(218, 170);
+            this.openfile.Location = new System.Drawing.Point(334, 104);
             this.openfile.Name = "openfile";
             this.openfile.Size = new System.Drawing.Size(75, 23);
             this.openfile.TabIndex = 4;
@@ -109,24 +109,24 @@ namespace _5_лаба_интерфейс
             // 
             // portbox
             // 
-            this.portbox.Location = new System.Drawing.Point(251, 56);
+            this.portbox.Location = new System.Drawing.Point(85, 47);
             this.portbox.Name = "portbox";
-            this.portbox.Size = new System.Drawing.Size(100, 22);
+            this.portbox.Size = new System.Drawing.Size(84, 22);
             this.portbox.TabIndex = 5;
             this.portbox.Visible = false;
             // 
             // ipadresbox
             // 
-            this.ipadresbox.Location = new System.Drawing.Point(251, 84);
+            this.ipadresbox.Location = new System.Drawing.Point(85, 75);
             this.ipadresbox.Name = "ipadresbox";
-            this.ipadresbox.Size = new System.Drawing.Size(100, 22);
+            this.ipadresbox.Size = new System.Drawing.Size(84, 22);
             this.ipadresbox.TabIndex = 6;
             this.ipadresbox.Visible = false;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(178, 56);
+            this.label1.Location = new System.Drawing.Point(12, 50);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(34, 17);
             this.label1.TabIndex = 7;
@@ -136,7 +136,7 @@ namespace _5_лаба_интерфейс
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(178, 84);
+            this.label2.Location = new System.Drawing.Point(12, 75);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 17);
             this.label2.TabIndex = 8;
@@ -147,34 +147,36 @@ namespace _5_лаба_интерфейс
             // 
             this.listFileBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.listFileBox.FormattingEnabled = true;
-            this.listFileBox.Location = new System.Drawing.Point(12, 53);
+            this.listFileBox.Location = new System.Drawing.Point(15, 104);
             this.listFileBox.Name = "listFileBox";
             this.listFileBox.Size = new System.Drawing.Size(148, 28);
             this.listFileBox.TabIndex = 9;
             // 
             // addfile
             // 
-            this.addfile.Location = new System.Drawing.Point(12, 112);
+            this.addfile.Location = new System.Drawing.Point(15, 138);
             this.addfile.Name = "addfile";
             this.addfile.Size = new System.Drawing.Size(75, 23);
             this.addfile.TabIndex = 10;
             this.addfile.Text = "Add file";
             this.addfile.UseVisualStyleBackColor = true;
+            this.addfile.Visible = false;
             this.addfile.Click += new System.EventHandler(this.addfile_Click);
             // 
             // connectButton
             // 
-            this.connectButton.Location = new System.Drawing.Point(308, 141);
+            this.connectButton.Location = new System.Drawing.Point(334, 46);
             this.connectButton.Name = "connectButton";
             this.connectButton.Size = new System.Drawing.Size(75, 23);
             this.connectButton.TabIndex = 11;
             this.connectButton.Text = "Connect";
             this.connectButton.UseVisualStyleBackColor = true;
+            this.connectButton.Visible = false;
             this.connectButton.Click += new System.EventHandler(this.connectButton_Click);
             // 
             // closeButton
             // 
-            this.closeButton.Location = new System.Drawing.Point(382, 13);
+            this.closeButton.Location = new System.Drawing.Point(382, 161);
             this.closeButton.Name = "closeButton";
             this.closeButton.Size = new System.Drawing.Size(113, 23);
             this.closeButton.TabIndex = 12;
