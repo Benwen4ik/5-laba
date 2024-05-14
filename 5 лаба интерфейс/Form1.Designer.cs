@@ -147,7 +147,7 @@ namespace _5_лаба_интерфейс
             // 
             this.listFileBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.listFileBox.FormattingEnabled = true;
-            this.listFileBox.Location = new System.Drawing.Point(15, 104);
+            this.listFileBox.Location = new System.Drawing.Point(21, 104);
             this.listFileBox.Name = "listFileBox";
             this.listFileBox.Size = new System.Drawing.Size(148, 28);
             this.listFileBox.TabIndex = 9;

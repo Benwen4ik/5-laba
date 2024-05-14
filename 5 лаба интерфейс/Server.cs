@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -27,7 +28,7 @@ namespace _5_лаба_интерфейс
             this.Port = port;
         }
 
-        public async Task StartAsync()
+        public void StartAsync()
         {
             listener = null;
 
@@ -40,10 +41,10 @@ namespace _5_лаба_интерфейс
 
                 while (true)
                 {
-                    client = await listener.AcceptTcpClientAsync();
+                    client = listener.AcceptTcpClient();
                     MessageBox.Show("Клиент подключен.");
 
-                    _ = HandleClientAsync(client);
+                    HandleClientAsync(client);
                 }
             }
             catch (Exception e)
@@ -58,7 +59,7 @@ namespace _5_лаба_интерфейс
             }
         }
 
-        private async Task HandleClientAsync(TcpClient client)
+        private void getList(TcpClient client)
         {
             try
             {
@@ -68,42 +69,10 @@ namespace _5_лаба_интерфейс
                     // Отправляем список файлов клиенту
                     foreach (string filePath in FilePaths)
                     {
-                        await writer.WriteLineAsync(Path.GetFileName(filePath));
+                        writer.WriteLine(Path.GetFileName(filePath));
                     }
-                    await writer.WriteLineAsync(); // Пустая строка для обозначения окончания списка файлов
-                    await writer.FlushAsync();
-
-                    while (true)
-                    {
-                        // Читаем запрос клиента
-                        string requestedFile = await reader.ReadLineAsync();
-                        if (string.IsNullOrEmpty(requestedFile))
-                            break;
-
-                        string filePath = FilePaths.Find(path => Path.GetFileName(path) == requestedFile);
-                        if (!string.IsNullOrEmpty(filePath))
-                        {
-                            using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
-                            {
-                                byte[] buffer = new byte[4096];
-                                int bytesRead;
-
-                                while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    client.GetStream().WriteAsync(buffer, 0, bytesRead);
-                                }
-                            }
-                            MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
-                            return;
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Файл '{requestedFile}' не найден на сервере.");
-                        }
-
-                        // Очищаем буфер и отправляем сигнал клиенту, что передача файла завершена
-                        await writer.FlushAsync();
-                    }
+                    writer.WriteLine(); // Пустая строка для обозначения окончания списка файлов
+                    writer.Flush();
                 }
             }
             catch (Exception e)
@@ -112,6 +81,73 @@ namespace _5_лаба_интерфейс
             }
             finally
             {
+                client.Close();
+                //       MessageBox.Show("Завершение соединения.");
+            }
+        }
+
+        private void HandleClientAsync(TcpClient client)
+        {
+            try
+            {
+                using (StreamReader reader = new StreamReader(client.GetStream()))
+                using (StreamWriter writer = new StreamWriter(client.GetStream()))
+                {
+                    // Отправляем список файлов клиенту
+                    foreach (string filePath in FilePaths)
+                    {
+                        writer.WriteLine(Path.GetFileName(filePath));
+                    }
+                    writer.WriteLine(); // Пустая строка для обозначения окончания списка файлов
+                    writer.Flush();
+                    while (true)
+                    {
+                        // Читаем запрос клиента
+                        if (!client.Connected)
+                        {
+                            MessageBox.Show("Клиент отключен");
+                            break;
+                        }
+                        string requestedFile = reader.ReadLine();
+                        if (string.IsNullOrEmpty(requestedFile))
+                        {
+
+                            break;
+                        }
+                            string filePath = FilePaths.Find(path => Path.GetFileName(path) == requestedFile);
+                            if (!string.IsNullOrEmpty(filePath))
+                            {
+                                using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+                                {
+                                    byte[] buffer = new byte[4096];
+                                    int bytesRead;
+
+                                    while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0)
+                                    {
+                                        client.GetStream().Write(buffer, 0, bytesRead);
+                                    }
+                                }
+                                MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
+                                return;
+                            }
+                            else
+                            {
+                                MessageBox.Show($"Файл '{requestedFile}' не найден на сервере.");
+                            }
+                     //   }
+
+                        // Очищаем буфер и отправляем сигнал клиенту, что передача файла завершена
+                    }
+                    writer.Flush();
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Ошибка при обработке клиента: " + e.Message);
+            }
+            finally
+            {
+                 MessageBox.Show("Клиент отключен");
                 client.Close();
          //       MessageBox.Show("Завершение соединения.");
             }

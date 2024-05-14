@@ -80,7 +80,7 @@ namespace _5_лаба_интерфейс
                 // Thread threadserver = new Thread(createServer);
                 // threadserver.Start(ListFile);
                 server = new Server((List<string>)ListFile, int.Parse(portbox.Text));
-                _ = server.StartAsync();
+                Task.Run( () => server.StartAsync() );
             //    _ = server.DownloadAsync();
                 //  threadserver.Abort();
             }
@@ -126,7 +126,7 @@ namespace _5_лаба_интерфейс
                     //server.
                     string file = listFileBox.SelectedItem.ToString();
                     //  client.downloadFile(file,savePath);
-                    _ = client.DownloadFileAsync(file, savePath);
+                    Task.Run(() => client.DownloadFileAsync(file, savePath) );
                     //client.StartDownloadAsync();
                 } else
                 {
@@ -141,14 +141,14 @@ namespace _5_лаба_интерфейс
             }
         }
 
-        private async Task createClientAsync(object savePath)
+        private void createClientAsync(object savePath)
         {
             try
             {
                 client = new Client( ipadresbox.Text, int.Parse(portbox.Text));
                // client.Start();
            //    client.RequestFileAsync(
-                ListFile = await client.GetFileListAsync();
+                ListFile = Task.Run( ()  => client.GetFileListAsync()).Result;
                 listFileBox.Items.Clear();
                 listFileBox.Items.AddRange(ListFile.ToArray());
             }
@@ -167,11 +167,11 @@ namespace _5_лаба_интерфейс
                     MessageBox.Show("Файл не выбран");
                     return;
                 }
-                if (DownloadListFile.ContainsKey(listFileBox.SelectedIndex))
+              /*  if (DownloadListFile.ContainsKey(listFileBox.SelectedIndex))
                 {
                     MessageBox.Show("Файл не скачан");
                     return;
-                }
+                } */
                 string filename = $"\"{DownloadListFile[listFileBox.SelectedIndex]}\"";
                 Process.Start("msedge.exe",filename);
             }
@@ -205,7 +205,7 @@ namespace _5_лаба_интерфейс
 
                 //  Thread threadclient = new Thread(createClient);
                 //  threadclient.Start(savePath);
-                _ = createClientAsync(savePath);
+                createClientAsync(savePath);
                 
                
                   //  MessageBox.Show("Ошибка при введении имени файла");
@@ -261,6 +261,31 @@ namespace _5_лаба_интерфейс
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             deleteAllFiles();
+        }
+
+        private void downloadButton_ClickAsync(object sender, EventArgs e)
+        {
+            try
+            {
+                if (listFileBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Файл не выбран");
+                    return;
+                }
+                if (!DownloadListFile.ContainsKey(listFileBox.SelectedIndex))
+                {
+                    savePath = Directory.GetCurrentDirectory() + "\\file" + listFileBox.SelectedIndex + ".html";
+                    string file = listFileBox.SelectedItem.ToString();
+                    client.DownloadFileAsync(file, savePath);
+                    DownloadListFile.Add(listFileBox.SelectedIndex, savePath);
+                }
+                string filename = $"\"{DownloadListFile[listFileBox.SelectedIndex]}\"";
+                Process.Start("msedge.exe", filename);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при удалении файлов: " + ex.Message);
+            }
         }
     }
 }

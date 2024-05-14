@@ -28,12 +28,12 @@ namespace _5_лаба_интерфейс
             ServerIpAddress = ip;
         }
 
-        public async  Task<List<string>> GetFileListAsync()
+        public List<string> GetFileListAsync()
         {
             try
             { 
                 client = new TcpClient();
-                await client.ConnectAsync(ServerIpAddress, ServerPort);
+                client.Connect(ServerIpAddress, ServerPort);
                 MessageBox.Show("Успешное подключение к серверу.");
 
                 using (StreamReader reader = new StreamReader(client.GetStream()))
@@ -46,14 +46,13 @@ namespace _5_лаба_интерфейс
                     // Читаем список файлов от сервера
                     List<string> fileList = new List<string>();
                     string line;
-                    while ((line = await reader.ReadLineAsync()) != string.Empty)
+                    while ((line = reader.ReadLine()) != string.Empty)
                     {
                         fileList.Add(line);
                     }
 
-                  //  client.Close();
-                  //  MessageBox.Show("Завершение соединения.");
-
+                 //   client.Close();
+                  //  MessageBox.Show("Завершение соединения
                     return fileList;
                 }
             }
@@ -64,17 +63,17 @@ namespace _5_лаба_интерфейс
             }
         }
 
-        public async Task DownloadFileAsync(string fileName, string directory)
+        public void DownloadFileAsync(string fileName, string directory)
         {
             try
             {
                     TcpClient client = new TcpClient();
-                    await client.ConnectAsync(ServerIpAddress, ServerPort);
-                if (!client.Connected)
-                {
-                    MessageBox.Show("Соединение с сервером не установлено.");
-                    return;
-                }
+                    client.Connect(ServerIpAddress, ServerPort);
+              //  if (!client.Connected)
+             //   {
+              //      MessageBox.Show("Соединение с сервером не установлено.");
+             //       return;
+              //  }
                 MessageBox.Show("Успешное подключение к серверу.");
 
                 using (StreamReader reader = new StreamReader(client.GetStream()))
@@ -82,11 +81,11 @@ namespace _5_лаба_интерфейс
                 {
                     // Отправляем запрос на сервер
                   //  await writer.WriteLineAsync("DOWNLOAD_FILE");
-                    await writer.WriteLineAsync(fileName);
-                    await writer.FlushAsync();
+                    writer.WriteLine(fileName);
+                    writer.Flush();
 
                     // Читаем ответ от сервера
-                    string response = await reader.ReadLineAsync();
+                    string response = reader.ReadLine();
                     if (!string.IsNullOrEmpty(response))
                     {
                         // Получаем имя файла из ответа сервера
@@ -100,7 +99,7 @@ namespace _5_лаба_интерфейс
                             // Создаем файл на клиенте и записываем в него данные от сервера
                             using (FileStream fileStream = new FileStream(directory, FileMode.Create))
                             {
-                                await client.GetStream().CopyToAsync(fileStream);
+                                client.GetStream().CopyTo(fileStream);
                             }
 
                             MessageBox.Show($"Файл '{receivedFileName}' успешно скачан и сохранен.");

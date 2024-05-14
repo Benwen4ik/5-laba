@@ -59,15 +59,5 @@ namespace _5_лаба_интерфейс.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap илюшкина_гифка {
-            get {
-                object obj = ResourceManager.GetObject("илюшкина гифка", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
     }
 }
