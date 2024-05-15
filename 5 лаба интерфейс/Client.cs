@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -26,19 +27,19 @@ namespace _5_лаба_интерфейс
          //   _savePath = savePath;
             ServerPort = port;
             ServerIpAddress = ip;
+            client = new TcpClient();
+            client.Connect(ServerIpAddress, ServerPort);
+            MessageBox.Show("Успешное подключение к серверу.");
         }
 
         public List<string> GetFileListAsync()
         {
             try
-            { 
-                client = new TcpClient();
-                client.Connect(ServerIpAddress, ServerPort);
-                MessageBox.Show("Успешное подключение к серверу.");
+            {
 
-                using (StreamReader reader = new StreamReader(client.GetStream()))
-                using (StreamWriter writer = new StreamWriter(client.GetStream()))
-                {
+                StreamReader reader = new StreamReader(client.GetStream());
+                StreamWriter writer = new StreamWriter(client.GetStream());
+                
                     // Отправляем запрос на получение списка файлов
                 //    await writer.WriteLineAsync();
                   //  await writer.FlushAsync();
@@ -51,10 +52,12 @@ namespace _5_лаба_интерфейс
                         fileList.Add(line);
                     }
 
-                 //   client.Close();
-                  //  MessageBox.Show("Завершение соединения
-                    return fileList;
-                }
+                //   client.Close();
+                //  MessageBox.Show("Завершение 
+
+                writer.Flush();
+
+                return fileList;
             }
             catch (Exception e)
             {
@@ -67,49 +70,50 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                    TcpClient client = new TcpClient();
-                    client.Connect(ServerIpAddress, ServerPort);
-              //  if (!client.Connected)
-             //   {
-              //      MessageBox.Show("Соединение с сервером не установлено.");
-             //       return;
-              //  }
-                MessageBox.Show("Успешное подключение к серверу.");
-
-                using (StreamReader reader = new StreamReader(client.GetStream()))
-                using (StreamWriter writer = new StreamWriter(client.GetStream()))
+                  //  TcpClient client = new TcpClient();
+                //    client.Connect(ServerIpAddress, ServerPort);
+                if (!client.Connected)
                 {
+                    client.Connect(ServerIpAddress, ServerPort);
+                    MessageBox.Show("Успешное подключение к серверу.");
+                }
+
+                StreamReader reader = new StreamReader(client.GetStream());
+                StreamWriter writer = new StreamWriter(client.GetStream());
                     // Отправляем запрос на сервер
-                  //  await writer.WriteLineAsync("DOWNLOAD_FILE");
+                   writer.WriteLine("DOWNLOAD_FILE");
                     writer.WriteLine(fileName);
                     writer.Flush();
-
+                 Thread.Sleep(1000);
                     // Читаем ответ от сервера
-                    string response = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(response))
-                    {
-                        // Получаем имя файла из ответа сервера
-                        string receivedFileName = Path.GetFileName(response);
+                  //  string response ;
+                if (client.Available != 0)
+                {
+                    // Получаем имя файла из ответа сервера
+                //    string receivedFileName = "dddsad";
 
-                        // Создаем диалоговое окно для сохранения файла
-                    //    SaveFileDialog saveFileDialog = new SaveFileDialog();
-                    //    saveFileDialog.FileName = receivedFileName;
-                  //      if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                   //     {
-                            // Создаем файл на клиенте и записываем в него данные от сервера
-                            using (FileStream fileStream = new FileStream(directory, FileMode.Create))
-                            {
-                                client.GetStream().CopyTo(fileStream);
-                            }
-
-                            MessageBox.Show($"Файл '{receivedFileName}' успешно скачан и сохранен.");
-               //         }
-                    }
-                    else
+                    // Создаем файл на клиенте и записываем в него данные от сервера
+                    using (FileStream fileStream = new FileStream(directory, FileMode.Create))
                     {
-                        MessageBox.Show($"Файл '{fileName}' не найден на сервере.");
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+
+                        while ((bytesRead = client.GetStream().Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            fileStream.Write(buffer, 0, bytesRead);
+                        }
                     }
+
+                        MessageBox.Show($"Файл '{fileName}' успешно скачан и сохранен.");
+                        writer.WriteLine("FILE_SEND");
+                        writer.Flush();
+                        return;
                 }
+                else
+                {
+                    MessageBox.Show($"Файл '{fileName}' не найден на сервере.");
+                }
+
 
        //         client.Close();
          //       MessageBox.Show("Завершение соединения.");
@@ -117,6 +121,11 @@ namespace _5_лаба_интерфейс
             catch (Exception e)
             {
                 MessageBox.Show("Ошибка при работе клиента(скачивание): " + e.Message);
+            }
+            finally
+            {
+                 client?.Close();
+                MessageBox.Show("Завершение соединения.");
             }
         }
 
@@ -245,6 +254,7 @@ namespace _5_лаба_интерфейс
         public void CloseConnect()
         {
             client?.Close();
+            MessageBox.Show("Завершение соединения.");
         }
 
     }

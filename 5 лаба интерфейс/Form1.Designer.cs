@@ -176,12 +176,13 @@ namespace _5_лаба_интерфейс
             // 
             // closeButton
             // 
-            this.closeButton.Location = new System.Drawing.Point(382, 161);
+            this.closeButton.Location = new System.Drawing.Point(334, 133);
             this.closeButton.Name = "closeButton";
             this.closeButton.Size = new System.Drawing.Size(113, 23);
             this.closeButton.TabIndex = 12;
             this.closeButton.Text = "Close connect";
             this.closeButton.UseVisualStyleBackColor = true;
+            this.closeButton.Visible = false;
             this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
             // 
             // Form1

@@ -47,6 +47,7 @@ namespace _5_лаба_интерфейс
             label2.Visible = false;
             connectButton.Visible = false;
             addfile.Visible = true;
+            closeButton.Visible = false;
         }
 
         private void ClientBox_CheckedChanged(object sender, EventArgs e)
@@ -62,6 +63,7 @@ namespace _5_лаба_интерфейс
             label2.Visible = true;
             connectButton.Visible = true;
             addfile.Visible = false;
+            closeButton.Visible = true;
         }
 
         private void postbutton_Click(object sender, EventArgs e)
@@ -224,6 +226,7 @@ namespace _5_лаба_интерфейс
             {
                 if (ServerBox.Checked == true)
                 {
+                    if (server == null) return;
                     server.closeConnect();
                     server = null;
                 }
@@ -234,7 +237,7 @@ namespace _5_лаба_интерфейс
                     client = null;
                 }
                 deleteAllFiles();
-                MessageBox.Show("Соединение завершено");
+                //MessageBox.Show("Соединение завершено");
             }
             catch (Exception ex)
             {
