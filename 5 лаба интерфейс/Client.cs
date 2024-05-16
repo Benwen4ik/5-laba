@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,9 +69,9 @@ namespace _5_лаба_интерфейс
 
         public void DownloadFileAsync(string fileName, string directory)
         {
-            try
-            {
-                  //  TcpClient client = new TcpClient();
+          //  try
+          //  {
+                //  TcpClient client = new TcpClient();
                 //    client.Connect(ServerIpAddress, ServerPort);
                 if (!client.Connected)
                 {
@@ -78,178 +79,69 @@ namespace _5_лаба_интерфейс
                     MessageBox.Show("Успешное подключение к серверу.");
                 }
 
-                StreamReader reader = new StreamReader(client.GetStream());
-                StreamWriter writer = new StreamWriter(client.GetStream());
+                using (StreamReader reader = new StreamReader(client.GetStream()))
+                using (StreamWriter writer = new StreamWriter(client.GetStream()))
+                {
                     // Отправляем запрос на сервер
-                   writer.WriteLine("DOWNLOAD_FILE");
+                    writer.WriteLine("DOWNLOAD_FILE");
                     writer.WriteLine(fileName);
                     writer.Flush();
-                 Thread.Sleep(1000);
+                    Thread.Sleep(3000);
                     // Читаем ответ от сервера
-                  //  string response ;
-                if (client.Available != 0)
-                {
+                    //  string response ;
+                    if (client.Available != 0)
+                    {
+                    NetworkStream stream = client.GetStream();
                     // Получаем имя файла из ответа сервера
-                //    string receivedFileName = "dddsad";
+                    //    string receivedFileName = "dddsad";
 
                     // Создаем файл на клиенте и записываем в него данные от сервера
-                    using (FileStream fileStream = new FileStream(directory, FileMode.Create))
-                    {
-                        byte[] buffer = new byte[4096];
-                        int bytesRead;
-
-                        while ((bytesRead = client.GetStream().Read(buffer, 0, buffer.Length)) > 0)
+                    using (SHA256 sha256 = SHA256.Create())
                         {
-                            fileStream.Write(buffer, 0, bytesRead);
+                            byte[] bufferhash = new byte[32];
+                            int bytehash = stream.Read(bufferhash, 0, 32);
+                        Console.WriteLine(bytehash);
+                        using (FileStream fileStream = new FileStream(directory, FileMode.Create))
+                            {
+                                byte[] buffer = new byte[4096];
+                                int bytesRead;
+                            
+                                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    Console.WriteLine(bytesRead);
+                                    fileStream.Write(buffer, 0, bytesRead);
+                                }
+                            }
+                            byte[] str = Encoding.UTF8.GetBytes(File.ReadAllText(directory));
+                            byte[] hash = sha256.ComputeHash(str);
+                            if (!bufferhash.SequenceEqual(hash))
+                            {
+                              //  MessageBox.Show(File.ReadAllText(directory));
+                                MessageBox.Show($"Файл '{directory}' поврежден. '{BitConverter.ToString( bufferhash)}' HASH '{BitConverter.ToString(hash)}'  ");
+                                File.Delete(directory);
+                                writer.Flush();
+                                return;
+                            }
                         }
-                    }
 
-                        MessageBox.Show($"Файл '{fileName}' успешно скачан и сохранен.");
-                        writer.WriteLine("FILE_SEND");
+                        MessageBox.Show($"Файл '{directory}' успешно скачан и сохранен.");
+                      //  writer.WriteLine("FILE_SEND");
                         writer.Flush();
                         return;
-                }
-                else
-                {
-                    MessageBox.Show($"Файл '{fileName}' не найден на сервере.");
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Файл '{fileName}' не найден на сервере.");
+                    }
                 }
 
 
        //         client.Close();
          //       MessageBox.Show("Завершение соединения.");
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Ошибка при работе клиента(скачивание): " + e.Message);
-            }
-            finally
-            {
-                 client?.Close();
-                MessageBox.Show("Завершение соединения.");
-            }
+            
         }
 
-        public void getFile()
-        {
-            try
-            {
-                 using (var fileStream = new FileStream(_savePath, FileMode.Create))
-                {
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-
-                    while ((bytesRead = client.GetStream().Read(buffer, 0, buffer.Length)) > 0)
-                    {
-                        fileStream.Write(buffer, 0, bytesRead);
-                    }
-                }
-               
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при получении файла: " + ex.Message);
-            }
-            finally
-            {
-                // client?.Close();
-            }
-        }
-
-        public async Task StartDownloadAsync(string fileName)
-        {
-            try
-            {
-                TcpClient client = new TcpClient();
-                await client.ConnectAsync(ServerIpAddress, ServerPort);
-                MessageBox.Show("Успешное подключение к серверу.");
-
-                using (StreamReader reader = new StreamReader(client.GetStream()))
-                using (StreamWriter writer = new StreamWriter(client.GetStream()))
-                {
-                    // Отправляем пустую строку в качестве запроса на получение списка файлов
-                    await writer.WriteLineAsync();
-                    await writer.FlushAsync();
-
-                    // Читаем список файлов от сервера
-                    List<string> fileList = new List<string>();
-                    string line;
-                    while ((line = await reader.ReadLineAsync()) != string.Empty)
-                    {
-                        fileList.Add(line);
-                    }
-
-                    // Проверяем, есть ли запрошенный файл в списке файлов
-                    if (fileList.Contains(fileName))
-                    {
-                        // Отправляем запрос на сервер с именем файла
-                        await writer.WriteLineAsync(fileName);
-                        await writer.FlushAsync();
-
-                        // Читаем ответ от сервера
-                        string response = await reader.ReadLineAsync();
-                        if (!string.IsNullOrEmpty(response))
-                        {
-                            // Получаем имя файла из ответа сервера
-                            string receivedFileName = Path.GetFileName(response);
-
-                            // Создаем диалоговое окно для сохранения файла
-                            SaveFileDialog saveFileDialog = new SaveFileDialog();
-                            saveFileDialog.FileName = receivedFileName;
-                            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                            {
-                                // Создаем файл на клиенте и записываем в него данные от сервера
-                                using (FileStream fileStream = new FileStream(saveFileDialog.FileName, FileMode.Create))
-                                {
-                                    await client.GetStream().CopyToAsync(fileStream);
-                                }
-
-                                MessageBox.Show($"Файл '{receivedFileName}' успешно скачан и сохранен.");
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Файл '{fileName}' не найден на сервере.");
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Список файлов не содержит запрошенного файла.");
-                    }
-                }
-
-                client.Close();
-                MessageBox.Show("Завершение соединения.");
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Ошибка при работе клиента: " + e.Message);
-            }
-        }
-
-        public bool Connect()
-        {
-
-            MessageBox.Show("Ожидание подключения");
-            try
-            {
-                client = new TcpClient(ServerIpAddress, ServerPort);
-                MessageBox.Show("Подключение к серверу успешно.");
-                if (client.Connected == true) return true;
-                else return false;
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при получении файла: " + ex.Message);
-                return false;
-            }
-
-        }
-
-        public List<string> getListFile()
-        {
-            return fileList;
-        }
+       
 
         public void CloseConnect()
         {

@@ -44,6 +44,7 @@ namespace _5_лаба_интерфейс
             this.addfile = new System.Windows.Forms.Button();
             this.connectButton = new System.Windows.Forms.Button();
             this.closeButton = new System.Windows.Forms.Button();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.SuspendLayout();
             // 
             // ServerBox
@@ -229,6 +230,7 @@ namespace _5_лаба_интерфейс
         private System.Windows.Forms.Button addfile;
         private System.Windows.Forms.Button connectButton;
         private System.Windows.Forms.Button closeButton;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
 

@@ -24,6 +24,8 @@ namespace _5_лаба_интерфейс
         List<string> ListFile = new List<string> { };
         Dictionary<int, string> DownloadListFile = new Dictionary<int, string> { };
 
+        string Path = "";
+
         public Form1()
         {
             InitializeComponent();
@@ -70,7 +72,7 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                if (listFileBox.Items.Count == 0)
+                if (ListFile.Count == 0)
                 {
                     MessageBox.Show("Не выбран ни один файл");
                     return;
@@ -121,7 +123,6 @@ namespace _5_лаба_интерфейс
                     if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
                         return;
                     savePath = saveFileDialog1.FileName;
-                    DownloadListFile.Add(listFileBox.SelectedIndex,savePath);
                     //  Thread threadclient = new Thread(createClient);
                     //  threadclient.Start(savePath);
                     //createClient(savePath);
@@ -129,6 +130,7 @@ namespace _5_лаба_интерфейс
                     string file = listFileBox.SelectedItem.ToString();
                     //  client.downloadFile(file,savePath);
                     Task.Run(() => client.DownloadFileAsync(file, savePath) );
+                    DownloadListFile.Add(listFileBox.SelectedIndex, savePath);
                     //client.StartDownloadAsync();
                 } else
                 {
@@ -164,18 +166,33 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                if (listFileBox.SelectedIndex == -1)
+                if (client != null)
                 {
-                    MessageBox.Show("Файл не выбран");
-                    return;
+                    if (listFileBox.SelectedIndex == -1)
+                    {
+                        MessageBox.Show("Файл не выбран");
+                        return;
+                    }
+                    if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
+                        return;
+                    savePath = saveFileDialog1.FileName;
+                    //  Thread threadclient = new Thread(createClient);
+                    //  threadclient.Start(savePath);
+                    //createClient(savePath);
+                    //server.
+                    string file = listFileBox.SelectedItem.ToString();
+                    //  client.downloadFile(file,savePath);
+                    Task.Run(() => client.DownloadFileAsync(file, savePath));
+                    DownloadListFile.Add(listFileBox.SelectedIndex, savePath);
+                    //client.StartDownloadAsync();
                 }
-              /*  if (DownloadListFile.ContainsKey(listFileBox.SelectedIndex))
+                else
                 {
-                    MessageBox.Show("Файл не скачан");
-                    return;
-                } */
+                    MessageBox.Show("Ошибка при введении имени файла");
+                }
+                Thread.Sleep(3000);
                 string filename = $"\"{DownloadListFile[listFileBox.SelectedIndex]}\"";
-                Process.Start("msedge.exe",filename);
+                var process = Process.Start("msedge.exe",filename);
             }
             catch(NullReferenceException nex)
             {
@@ -189,10 +206,19 @@ namespace _5_лаба_интерфейс
 
         private void addfile_Click(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
-                return;
-            ListFile.Add(openFileDialog1.FileName);
-            listFileBox.Items.Add(Path.GetFileNameWithoutExtension(openFileDialog1.FileName));
+            /* if (openFileDialog1.ShowDialog() == DialogResult.Cancel)
+                 return;
+             ListFile.Add(openFileDialog1.FileName);
+             listFileBox.Items.Add(Path.GetFileNameWithoutExtension(openFileDialog1.FileName));
+            */
+
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+               Path = folderBrowserDialog1.SelectedPath;
+            }
+            ListFile = Directory.GetFiles(Path,"*.html").ToList();
+            
+
         }
 
         private void connectButton_Click(object sender, EventArgs e)
@@ -254,6 +280,7 @@ namespace _5_лаба_интерфейс
                     File.Delete(str);
                 }
                 DownloadListFile.Clear();
+                MessageBox.Show("Файл удален");
             }
             catch (Exception ex)
             {

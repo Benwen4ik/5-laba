@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace _5_лаба_интерфейс
 {
     class Server
     {
-        private int Port ; // Укажите порт, на котором будет работать сервер
+        private int Port; // Укажите порт, на котором будет работать сервер
 
         private readonly List<string> FilePaths;
 
@@ -73,49 +74,54 @@ namespace _5_лаба_интерфейс
                     }
                     writer.WriteLine(); // Пустая строка для обозначения окончания списка файлов
                     writer.Flush();
-                        while (running)
+                    while (running)
+                    {
+                        // Читаем запрос клиента
+                        //if (!client.Connected)
+                        //{
+                        //    MessageBox.Show("Клиент отключен");
+                        //    break;
+                        //}
+                        if (reader.ReadLine() == "DOWNLOAD_FILE")
                         {
-                            // Читаем запрос клиента
-                            if (!client.Connected)
+                            string requestedFile = reader.ReadLine();
+                            if (!string.IsNullOrEmpty(requestedFile))
                             {
-                                MessageBox.Show("Клиент отключен");
-                                break;
-                            }
-                            if (reader.ReadLine() == "DOWNLOAD_FILE")
-                            {
-                                string requestedFile = reader.ReadLine();
-                                if (!string.IsNullOrEmpty(requestedFile))
+                                string filePath = FilePaths.Find(path => Path.GetFileName(path) == requestedFile);
+                                if (!string.IsNullOrEmpty(filePath))
                                 {
-                                    string filePath = FilePaths.Find(path => Path.GetFileName(path) == requestedFile);
-                                    if (!string.IsNullOrEmpty(filePath))
+                                    using (SHA256 sha256 = SHA256.Create())
                                     {
+                                        byte[] str = Encoding.UTF8.GetBytes(File.ReadAllText(filePath));
+                                        byte[] hash = sha256.ComputeHash(str);
+                                        client.GetStream().Write(hash, 0, hash.Length);
                                         using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
                                         {
                                             byte[] buffer = new byte[4096];
                                             int bytesRead;
-
                                             while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0)
                                             {
                                                 client.GetStream().Write(buffer, 0, bytesRead);
                                             }
                                         }
-
-                                        writer.WriteLine();
-                                        writer.Flush();
-                                        MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
-
-                                        // Thread.Sleep(5000);
-                                         return;
-                                       // running = false;
                                     }
-                                    else
-                                    {
-                                        MessageBox.Show($"Файл '{requestedFile}' не найден на сервере.");
-                                    }
+
+                                    writer.Flush();
+                                    MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
+
+                                    // Thread.Sleep(5000);
+                                    client.Close();
+                                    // running = false;
+                                }
+                                else
+                                {
+                                    MessageBox.Show($"Файл '{requestedFile}' не найден на сервере. SERVER");
                                 }
                             }
-                            // Очищаем буфер и отправляем сигнал клиенту, что передача файла завершена
-                            // writer.Flush();
+                        }
+                        // Очищаем буфер и отправляем сигнал клиенту, что передача файла завершена
+                        // writer.Flush();
+                        Thread.Sleep(3000);
                     }
                 }
             }
