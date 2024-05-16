@@ -76,11 +76,22 @@ namespace _5_лаба_интерфейс
                     writer.Flush();
                     while (running)
                     {
-                        // Читаем запрос клиента
+                        if (!client.Connected)
+                        {
+                            break;
+                        }
                         //if (!client.Connected)
                         //{
-                        //    MessageBox.Show("Клиент отключен");
-                        //    break;
+                        //    listener.Stop();
+                        //    listener = null;
+                        //    listener.Start();
+                        //    client = null;
+                        //    while (!client.Connected)
+                        //    {
+                        //        client = listener.AcceptTcpClient();
+                        //        //MessageBox.Show("Клиент отключен");
+                        //        // break;
+                        //    }
                         //}
                         if (reader.ReadLine() == "DOWNLOAD_FILE")
                         {
@@ -106,11 +117,13 @@ namespace _5_лаба_интерфейс
                                         }
                                     }
 
+
                                     writer.Flush();
                                     MessageBox.Show($"Файл '{requestedFile}' отправлен клиенту.");
 
                                     // Thread.Sleep(5000);
                                     client.Close();
+                                    //return;
                                     // running = false;
                                 }
                                 else
@@ -119,9 +132,6 @@ namespace _5_лаба_интерфейс
                                 }
                             }
                         }
-                        // Очищаем буфер и отправляем сигнал клиенту, что передача файла завершена
-                        // writer.Flush();
-                        Thread.Sleep(3000);
                     }
                 }
             }
@@ -132,7 +142,7 @@ namespace _5_лаба_интерфейс
             finally
             {
                 client.Close();
-                MessageBox.Show("Клиент отключен");
+              //  MessageBox.Show("Клиент отключен");
                 //       MessageBox.Show("Завершение соединения.");
             }
         }

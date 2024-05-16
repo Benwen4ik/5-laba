@@ -26,6 +26,7 @@ namespace _5_лаба_интерфейс
 
         string Path = "";
 
+        int fileCount = 0;
         public Form1()
         {
             InitializeComponent();
@@ -168,14 +169,22 @@ namespace _5_лаба_интерфейс
             {
                 if (client != null)
                 {
-                    if (listFileBox.SelectedIndex == -1)
+                    Process[] processes = Process.GetProcessesByName("chrome");
+                    bool isOn = processes.Length > 0;
+                    if (isOn)
                     {
-                        MessageBox.Show("Файл не выбран");
+                        MessageBox.Show("Закройте chrome перед открытием нового файла");
                         return;
                     }
-                    if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
-                        return;
-                    savePath = saveFileDialog1.FileName;
+                    //if (listFileBox.SelectedIndex == -1)
+                    //{
+                    //    MessageBox.Show("Файл не выбран");
+                    //    return;
+                    //}
+                    //if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
+                    //    return;
+                    savePath = Environment.CurrentDirectory + @"\file" +fileCount + ".html";
+                    fileCount++;
                     //  Thread threadclient = new Thread(createClient);
                     //  threadclient.Start(savePath);
                     //createClient(savePath);
@@ -183,18 +192,17 @@ namespace _5_лаба_интерфейс
                     string file = listFileBox.SelectedItem.ToString();
                     //  client.downloadFile(file,savePath);
                     Task.Run(() => client.DownloadFileAsync(file, savePath));
-                    DownloadListFile.Add(listFileBox.SelectedIndex, savePath);
+                 //   DownloadListFile.Add(listFileBox.SelectedIndex, savePath);
                     //client.StartDownloadAsync();
                 }
                 else
                 {
                     MessageBox.Show("Ошибка при введении имени файла");
                 }
-                Thread.Sleep(3000);
-                string filename = $"\"{DownloadListFile[listFileBox.SelectedIndex]}\"";
-                var process = Process.Start("msedge.exe",filename);
+                // string filename = $"\"{DownloadListFile[listFileBox.SelectedIndex]}\"";
+                // var process = Process.Start("msedge.exe",filename);
             }
-            catch(NullReferenceException nex)
+            catch (NullReferenceException nex)
             {
                 MessageBox.Show("Ошибка при чтении файла: " + nex.Message);
             }
@@ -262,7 +270,7 @@ namespace _5_лаба_интерфейс
                     client.CloseConnect();
                     client = null;
                 }
-                deleteAllFiles();
+                //deleteAllFiles();
                 //MessageBox.Show("Соединение завершено");
             }
             catch (Exception ex)
@@ -290,7 +298,7 @@ namespace _5_лаба_интерфейс
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            deleteAllFiles();
+           // deleteAllFiles();
         }
 
         private void downloadButton_ClickAsync(object sender, EventArgs e)
