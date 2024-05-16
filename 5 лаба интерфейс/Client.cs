@@ -60,20 +60,20 @@ namespace _5_лаба_интерфейс
                 writer.Flush();
 
                 return fileList;
-            }
+        }
             catch (Exception e)
             {
                 MessageBox.Show("Ошибка при работе клиента: " + e.Message);
                 return null;
             }
-        }
+}
 
         public void DownloadFileAsync(string fileName, string directory)
         {
             try
             {
-               // TcpClient client = new TcpClient();
-               // client.Connect(ServerIpAddress, ServerPort);
+                // TcpClient client = new TcpClient();
+                // client.Connect(ServerIpAddress, ServerPort);
                 //if (!client.Connected)
                 //{
                 //    client = new TcpClient();

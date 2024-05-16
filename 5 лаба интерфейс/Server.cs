@@ -21,7 +21,9 @@ namespace _5_лаба_интерфейс
         private bool running = true;
 
         TcpListener listener = null;
-        TcpClient client = null;
+        List<TcpClient> listClients = new List<TcpClient> { };
+        TcpClient  client = null;
+        int currentClients = 0;
 
         public Server(List<string> filePath, int port)
         {
@@ -42,10 +44,13 @@ namespace _5_лаба_интерфейс
 
                 while (running)
                 {
-                    client = listener.AcceptTcpClient();
-                    MessageBox.Show("Клиент подключен.");
-
-                    HandleClientAsync(client);
+                    if (listener.Pending())
+                    {
+                        client = listener.AcceptTcpClient();
+                        listClients.Add(client);
+                        MessageBox.Show("Клиент подключен");
+                        Task.Run(() => HandleClientAsync(listClients[listClients.Count-1]) );
+                    }
                 }
             }
             catch (Exception e)
@@ -76,16 +81,16 @@ namespace _5_лаба_интерфейс
                     writer.Flush();
                     while (running)
                     {
-                        if (!client.Connected)
-                        {
-                            break;
-                        }
                         //if (!client.Connected)
                         //{
-                        //    listener.Stop();
-                        //    listener = null;
-                        //    listener.Start();
-                        //    client = null;
+                        //    break;
+                        //}
+                        //if (!client.Connected)
+                        //{
+                        //    //listener.Stop();
+                        //    //listener = null;
+                        //    //listener.Start();
+                        //  //  client = null;
                         //    while (!client.Connected)
                         //    {
                         //        client = listener.AcceptTcpClient();
@@ -142,7 +147,7 @@ namespace _5_лаба_интерфейс
             finally
             {
                 client.Close();
-              //  MessageBox.Show("Клиент отключен");
+                //  MessageBox.Show("Клиент отключен");
                 //       MessageBox.Show("Завершение соединения.");
             }
         }
