@@ -63,7 +63,7 @@ namespace _5_лаба_интерфейс
         }
             catch (Exception e)
             {
-                MessageBox.Show("Ошибка при работе клиента: " + e.Message);
+                MessageBox.Show("Ошибка при работе клиента при создании: " + e.Message);
                 return null;
             }
 }
@@ -74,16 +74,16 @@ namespace _5_лаба_интерфейс
             {
                 // TcpClient client = new TcpClient();
                 // client.Connect(ServerIpAddress, ServerPort);
-                //if (!client.Connected)
-                //{
-                //    client = new TcpClient();
-                //    while (!client.Connected)
-                //    {
-                //        Thread.Sleep(2000);
-                //        client.Connect(ServerIpAddress, ServerPort);
-                //        //    MessageBox.Show("Успешное подключение к серверу.");
-                //    }
-                //}
+                if (!client.Connected)
+                {
+                    client = new TcpClient();
+                    while (!client.Connected)
+                    {
+                        Thread.Sleep(200);
+                        client.Connect(ServerIpAddress, ServerPort);
+                        //    MessageBox.Show("Успешное подключение к серверу.");
+                    }
+                }
 
                 using (StreamReader reader = new StreamReader(client.GetStream()))
                 using (StreamWriter writer = new StreamWriter(client.GetStream()))

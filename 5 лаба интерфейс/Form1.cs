@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -191,7 +192,7 @@ namespace _5_лаба_интерфейс
                     //server.
                     string file = listFileBox.SelectedItem.ToString();
                     //  client.downloadFile(file,savePath);
-                    Task.Run(() => client.DownloadFileAsync(file, savePath));
+                    client.DownloadFileAsync(file, savePath);
                  //   DownloadListFile.Add(listFileBox.SelectedIndex, savePath);
                     //client.StartDownloadAsync();
                 }

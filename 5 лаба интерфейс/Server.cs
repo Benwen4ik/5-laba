@@ -55,7 +55,7 @@ namespace _5_лаба_интерфейс
             }
             catch (Exception e)
             {
-                MessageBox.Show("Ошибка при работе сервера: " + e.Message);
+                MessageBox.Show("Ошибка при работе сервера(старте): " + e.Message);
             }
             finally
             {
@@ -69,8 +69,8 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                using (StreamReader reader = new StreamReader(client.GetStream()))
-                using (StreamWriter writer = new StreamWriter(client.GetStream()))
+                using (StreamReader reader = new StreamReader(listClients[listClients.Count-1].GetStream()))
+                using (StreamWriter writer = new StreamWriter(listClients[listClients.Count - 1].GetStream()))
                 {
                     // Отправляем список файлов клиенту
                     foreach (string filePath in FilePaths)
@@ -85,19 +85,19 @@ namespace _5_лаба_интерфейс
                         //{
                         //    break;
                         //}
-                        //if (!client.Connected)
-                        //{
-                        //    //listener.Stop();
-                        //    //listener = null;
-                        //    //listener.Start();
-                        //  //  client = null;
-                        //    while (!client.Connected)
-                        //    {
-                        //        client = listener.AcceptTcpClient();
-                        //        //MessageBox.Show("Клиент отключен");
-                        //        // break;
-                        //    }
-                        //}
+                        if (!client.Connected)
+                        {
+                            //listener.Stop();
+                            //listener = null;
+                            //listener.Start();
+                            //  client = null;
+                            while (!client.Connected)
+                            {
+                                client = listener.AcceptTcpClient();
+                                //MessageBox.Show("Клиент отключен");
+                                // break;
+                            }
+                        }
                         if (reader.ReadLine() == "DOWNLOAD_FILE")
                         {
                             string requestedFile = reader.ReadLine();
@@ -142,7 +142,7 @@ namespace _5_лаба_интерфейс
             }
             catch (Exception e)
             {
-                MessageBox.Show("Ошибка при обработке клиента: " + e.Message);
+                MessageBox.Show("Ошибка при обработке cервера: " + e.Message);
             }
             finally
             {
