@@ -49,7 +49,7 @@ namespace _5_лаба_интерфейс
                         client = listener.AcceptTcpClient();
                         listClients.Add(client);
                         MessageBox.Show("Клиент подключен");
-                        Task.Run(() => HandleClientAsync(listClients[listClients.Count-1]) );
+                        Task.Run(() => HandleClientAsync(client) );
                     }
                 }
             }
@@ -69,8 +69,8 @@ namespace _5_лаба_интерфейс
         {
             try
             {
-                using (StreamReader reader = new StreamReader(listClients[listClients.Count-1].GetStream()))
-                using (StreamWriter writer = new StreamWriter(listClients[listClients.Count - 1].GetStream()))
+                using (StreamReader reader = new StreamReader(client.GetStream()))
+                using (StreamWriter writer = new StreamWriter(client.GetStream()))
                 {
                     // Отправляем список файлов клиенту
                     foreach (string filePath in FilePaths)

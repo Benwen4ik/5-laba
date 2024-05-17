@@ -32,7 +32,6 @@ namespace _5_лаба_интерфейс
             this.ServerBox = new System.Windows.Forms.CheckBox();
             this.ClientBox = new System.Windows.Forms.CheckBox();
             this.postbutton = new System.Windows.Forms.Button();
-            this.getbutton = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.openfile = new System.Windows.Forms.Button();
@@ -81,17 +80,6 @@ namespace _5_лаба_интерфейс
             this.postbutton.UseVisualStyleBackColor = true;
             this.postbutton.Visible = false;
             this.postbutton.Click += new System.EventHandler(this.postbutton_Click);
-            // 
-            // getbutton
-            // 
-            this.getbutton.Location = new System.Drawing.Point(334, 75);
-            this.getbutton.Name = "getbutton";
-            this.getbutton.Size = new System.Drawing.Size(75, 23);
-            this.getbutton.TabIndex = 3;
-            this.getbutton.Text = "Get file";
-            this.getbutton.UseVisualStyleBackColor = true;
-            this.getbutton.Visible = false;
-            this.getbutton.Click += new System.EventHandler(this.getbutton_Click);
             // 
             // openFileDialog1
             // 
@@ -200,7 +188,6 @@ namespace _5_лаба_интерфейс
             this.Controls.Add(this.ipadresbox);
             this.Controls.Add(this.portbox);
             this.Controls.Add(this.openfile);
-            this.Controls.Add(this.getbutton);
             this.Controls.Add(this.postbutton);
             this.Controls.Add(this.ClientBox);
             this.Controls.Add(this.ServerBox);
@@ -218,7 +205,6 @@ namespace _5_лаба_интерфейс
         private System.Windows.Forms.CheckBox ServerBox;
         private System.Windows.Forms.CheckBox ClientBox;
         private System.Windows.Forms.Button postbutton;
-        private System.Windows.Forms.Button getbutton;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.Button openfile;
